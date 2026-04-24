@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="OrganizerBlazorApp.Application/OrganizerBlazorApp.Application.csproj" />
+  <Project Path="OrganizerBlazorApp.Domain/OrganizerBlazorApp.Domain.csproj" />
+  <Project Path="OrganizerBlazorApp.Infrastructure/OrganizerBlazorApp.Infrastructure.csproj" />
+  <Project Path="OrganizerBlazorApp.Web/OrganizerBlazorApp.Web.csproj" />
+</Solution>
