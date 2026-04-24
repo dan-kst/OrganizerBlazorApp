@@ -18,4 +18,8 @@ public class Attachment : BaseEntity
 
   /// <summary>A category of file.</summary>
   public MediaType Type { get; set; }
+  /// <summary>An id of parent unit.</summary>
+  public Guid TodoUnitId { get; set; }
+  /// <summary>A reference to parent unit.</summary>
+  public virtual TodoUnit TodoUnit { get; set; } = null!;
 }
