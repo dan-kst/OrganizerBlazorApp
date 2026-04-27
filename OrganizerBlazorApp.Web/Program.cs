@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 
+using OrganizerBlazorApp.Domain.Interfaces;
 using OrganizerBlazorApp.Infrastructure.Data;
+using OrganizerBlazorApp.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(connectionString,
         b => b.MigrationsAssembly("OrganizerBlazorApp.Infrastructure")));
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
 var app = builder.Build();
 
