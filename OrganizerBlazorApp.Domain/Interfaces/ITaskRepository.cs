@@ -1,0 +1,17 @@
+using OrganizerBlazorApp.Domain.Entities;
+
+namespace OrganizerBlazorApp.Domain.Interfaces;
+
+/// <summary>
+/// Defines the contract for task-related data operations.
+/// </summary>
+public interface ITaskRepository
+{
+    Task<TodoUnit?> GetByIdAsync(Guid id);
+    Task AddAsync(TodoUnit task);
+
+    /// <summary>
+    /// Checks if all mandatory subtasks are completed for a given task.
+    /// </summary>
+    Task<bool> AreMandatorySubtasksMetAsync(Guid taskId);
+}
