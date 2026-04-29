@@ -23,7 +23,6 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
     return await _context.TodoUnits.ToListAsync() ?? [];
   }
 
-
   public async Task AddAsync(TodoUnit task)
   {
     await _context.TodoUnits.AddAsync(task);
