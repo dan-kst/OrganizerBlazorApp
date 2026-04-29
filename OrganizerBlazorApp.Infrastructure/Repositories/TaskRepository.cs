@@ -20,7 +20,11 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
   }
   public async Task<IEnumerable<TodoUnit>?> GetAllAsync()
   {
-    return await _context.TodoUnits.ToListAsync() ?? [];
+    return await _context.TodoUnits
+        .Include(t => t.SubTasks)
+        .Include(t => t.Attachments)
+        .Where(t => t.ParentUnitId == null)
+        .ToListAsync();
   }
 
   public async Task AddAsync(TodoUnit unit)
