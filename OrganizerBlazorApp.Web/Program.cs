@@ -4,6 +4,7 @@ using OrganizerBlazorApp.Application.Services;
 using OrganizerBlazorApp.Domain.Interfaces;
 using OrganizerBlazorApp.Infrastructure.Data;
 using OrganizerBlazorApp.Infrastructure.Repositories;
+using OrganizerBlazorApp.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,8 +29,7 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
-app.MapRazorComponents<WebApplication>()
-app.MapRazorComponents<WebApplication>()
+app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
