@@ -18,6 +18,11 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
         .Include(t => t.Attachments)
         .FirstOrDefaultAsync(t => t.Id == id);
   }
+  public async Task<IEnumerable<TodoUnit>?> GetAllAsync()
+  {
+    return await _context.TodoUnits.ToListAsync() ?? [];
+  }
+
 
   public async Task AddAsync(TodoUnit task)
   {
