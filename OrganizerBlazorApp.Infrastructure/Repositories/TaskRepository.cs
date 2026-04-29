@@ -14,27 +14,26 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
   public async Task<TodoUnit?> GetByIdAsync(Guid id)
   {
     return await _context.TodoUnits
-        .Include(t => t.SubTasks)
-        .Include(t => t.Attachments)
-        .FirstOrDefaultAsync(t => t.Id == id);
+        .Include(u => u.SubTasks)
+        .Include(u => u.Attachments)
+        .FirstOrDefaultAsync(u => u.Id == id);
   }
   public async Task<IEnumerable<TodoUnit>?> GetAllAsync()
   {
     return await _context.TodoUnits.ToListAsync() ?? [];
   }
 
-  public async Task AddAsync(TodoUnit task)
+  public async Task AddAsync(TodoUnit unit)
   {
-    await _context.TodoUnits.AddAsync(task);
+    await _context.TodoUnits.AddAsync(unit);
     await _context.SaveChangesAsync();
   }
   public async Task<bool> AreMandatorySubtasksMetAsync(Guid taskId)
   {
-    // Logic: Check if any REQUIRED subtask for the given parent is NOT completed
     var failedMandatory = await _context.TodoUnits
-        .AnyAsync(t => t.ParentUnitId == taskId
-                    && t.IsRequired
-                    && t.Status == ProcessStatus.Failed);
+        .AnyAsync(u => u.ParentUnitId == taskId
+                    && u.IsRequired
+                    && u.Status == ProcessStatus.Failed);
 
     return !failedMandatory;
   }

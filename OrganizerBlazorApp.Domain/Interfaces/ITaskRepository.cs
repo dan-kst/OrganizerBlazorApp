@@ -9,10 +9,10 @@ public interface ITaskRepository
 {
   Task<IEnumerable<TodoUnit>?> GetAllAsync();
   Task<TodoUnit?> GetByIdAsync(Guid id);
-  Task AddAsync(TodoUnit task);
+  Task AddAsync(TodoUnit unit);
 
   /// <summary>
   /// Checks if all mandatory subtasks are completed for a given task.
   /// </summary>
-  Task<bool> AreMandatorySubtasksMetAsync(Guid taskId);
+  Task<bool> AreMandatorySubtasksMetAsync(Guid unitId);
 }
