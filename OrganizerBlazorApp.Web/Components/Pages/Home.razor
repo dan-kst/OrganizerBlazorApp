@@ -1,0 +1,47 @@
+@page "/"
+@using OrganizerBlazorApp.Application.Services
+@using OrganizerBlazorApp.Domain.Entities
+@using OrganizerBlazorApp.Domain.Interfaces
+@inject TaskService TaskService
+@inject ITaskRepository Repository
+
+<PageTitle>Organizer Dashboard</PageTitle>
+
+<h1>My Business Tasks</h1>
+
+@if (tasks == null)
+{
+  <p><em>Loading...</em></p>
+}
+else
+{
+  <div class="task-grid">
+    @foreach (var task in tasks.Where(t => t.ParentUnitId == null))
+    {
+      <div class="task-card">
+        <h3>@task.Title</h3>
+        <p>Deadline: @task.Deadline.ToShortDateString()</p>
+        <span class="badge">@task.Status</span>
+        
+        @if (task.SubTasks.Any())
+        {
+          <ul>
+            @foreach (var sub in task.SubTasks)
+            {
+              <li>@sub.Title (@(sub.IsRequired ? "Required" : "Optional"))</li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </div>
+}
+
+@code {
+  private IEnumerable<TodoUnit>? tasks;
+
+  protected override async Task OnInitializedAsync()
+  {
+    
+  }
+}
