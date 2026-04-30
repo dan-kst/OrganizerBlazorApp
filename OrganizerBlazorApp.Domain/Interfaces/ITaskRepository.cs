@@ -11,6 +11,7 @@ public interface ITaskRepository
   Task<TodoUnit?> GetByIdAsync(Guid id);
   Task AddAsync(TodoUnit unit);
   Task UpdateAsync(TodoUnit unit);
+  Task DeleteAsync(Guid id);
 
   /// <summary>
   /// Checks if all mandatory subtasks are completed for a given task.

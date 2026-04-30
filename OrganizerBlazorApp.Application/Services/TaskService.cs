@@ -24,6 +24,45 @@ public class TaskService(ITaskRepository repository)
   }
 
   /// <summary>
+  /// Helper method to seed a sample task with subtasks for testing.
+  /// </summary>
+  public async Task SeedSampleTaskAsync()
+  {
+    var parentUnit = new TodoUnit
+    {
+      Title = "Release Business Organizer MVP",
+      Description = "Initial project launch for feedback",
+      Deadline = DateTime.Now.AddDays(7),
+      Status = ProcessStatus.Active
+    };
+
+    parentUnit.SubTasks.Add(new TodoUnit
+    {
+      Title = "Setup SQLite Database",
+      IsRequired = true,
+      Deadline = DateTime.Now.AddDays(1)
+    });
+
+    parentUnit.SubTasks.Add(new TodoUnit
+    {
+      Title = "Design Multimedia UI",
+      IsRequired = false,
+      Deadline = DateTime.Now.AddDays(3)
+    });
+
+    await _repository.AddAsync(parentUnit);
+  }
+
+  /// <summary>
+  /// Delete a specified unit and remove it from the database.
+  /// </summary>
+  /// <param name="id">An id of the unit entity to delete.</param>
+  public async Task DeleteTaskAsync(Guid id)
+  {
+    await _repository.DeleteAsync(id);
+  }
+
+  /// <summary>
   /// Updates unit status and applies business rules for mandatory subunits.
   /// </summary>
   public async Task UpdateProcessStatusAsync(Guid unitId, ProcessStatus newStatus)

@@ -31,6 +31,16 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
     _context.Entry(unit).State = EntityState.Modified;
     await _context.SaveChangesAsync();
   }
+  public async Task DeleteAsync(Guid id)
+  {
+    var unit = await _context.TodoUnits.FindAsync(id);
+    if (unit != null)
+    {
+      _context.TodoUnits.Remove(unit);
+      await _context.SaveChangesAsync();
+    }
+  }
+
 
   public async Task AddAsync(TodoUnit unit)
   {
