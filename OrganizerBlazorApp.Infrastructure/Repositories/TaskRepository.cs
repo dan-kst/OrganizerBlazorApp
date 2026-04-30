@@ -26,6 +26,11 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
         .Where(t => t.ParentUnitId == null)
         .ToListAsync();
   }
+  public async Task UpdateAsync(TodoUnit unit)
+  {
+    _context.Entry(unit).State = EntityState.Modified;
+    await _context.SaveChangesAsync();
+  }
 
   public async Task AddAsync(TodoUnit unit)
   {

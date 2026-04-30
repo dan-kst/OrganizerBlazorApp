@@ -39,4 +39,20 @@ public class TaskService(ITaskRepository repository)
       await UpdateProcessStatusAsync(unit.ParentUnitId.Value, ProcessStatus.Failed);
     }
   }
+
+  /// <summary>
+  /// Toogle progress status property of unit.
+  /// </summary>
+  /// <param name="unitId">An id of the unit entity to toggle its property.</param>
+  public async Task ToggleProcessStatusAsync(Guid unitId)
+  {
+    var task = await _repository.GetByIdAsync(unitId);
+    if (task == null) return;
+
+    var newStatus = task.Status == ProcessStatus.Active
+        ? ProcessStatus.Completed
+        : ProcessStatus.Active;
+
+    await UpdateProcessStatusAsync(unitId, newStatus);
+  }
 }
