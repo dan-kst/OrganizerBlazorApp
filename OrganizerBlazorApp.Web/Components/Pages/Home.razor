@@ -2,6 +2,9 @@
 @using OrganizerBlazorApp.Application.Services
 @using OrganizerBlazorApp.Domain.Entities
 @using OrganizerBlazorApp.Domain.Interfaces
+@using OrganizerBlazorApp.Domain.Enums
+@using OrganizerBlazorApp.Domain.Extentions
+@using OrganizerBlazorApp.Components.UI
 @rendermode InteractiveServer
 @inject TaskService TaskService
 @inject ITaskRepository Repository
@@ -15,53 +18,25 @@
         </button>
     </div>
 
-    @if (units == null)
-    {
-        <p><em>Loading units...</em></p>
-    }
-    else if (!units.Any())
-    {
-        <div class="alert alert-info">
-            No units found. Click the button above to add a sample task!
-        </div>
-    }
-    else
-    {
-        <div class="row">
-            @foreach (var task in units.Where(t => t.ParentUnitId == null))
-            {
-                <div class="col-md-6 mb-3">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">@task.Title</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">
-                                Deadline: @task.Deadline.ToString("MMM dd, yyyy")
-                            </h6>
-                            <p class="card-text">@task.Description</p>
-                            
-                            @if (task.SubTasks.Any())
-                            {
-                                <div class="mt-3">
-                                    <strong>Subtasks:</strong>
-                                    <ul class="list-group list-group-flush">
-                                        @foreach (var sub in task.SubTasks)
-                                        {
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                @sub.Title
-                                                <span class="badge @(sub.IsRequired ? "bg-danger" : "bg-secondary")">
-                                                    @(sub.IsRequired ? "Required" : "Optional")
-                                                </span>
-                                            </li>
-                                        }
-                                    </ul>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    }
+  @if (units == null)
+  {
+    <p><em>Loading units...</em></p>
+  }
+  else if (!units.Any())
+  {
+    <div class="alert alert-info">
+      No units found. Click the button above to add a sample unit!
+    </div>
+  }
+  else
+  {
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      @foreach (var unit in units.Where(t => t.ParentUnitId == null))
+      {
+        <UnitCard Unit="unit" OnDeleteClick="DeleteTask" OnStatusToggle="ToggleStatus"></UnitCard>
+      }
+    </div>
+  }
 </div>
 
 @code {
@@ -77,9 +52,23 @@
         units = await Repository.GetAllAsync();
     }
 
-    private async Task AddSampleTask()
-    {
-        await TaskService.SeedSampleTaskAsync();
-        await LoadTasks(); // Refresh the list
-    }
+  private async Task AddSampleTask()
+  {
+    await TaskService.SeedSampleTaskAsync();
+    // Refresh the list
+    await LoadTasks();
+  }
+
+  // Unit Card delegates
+  private async Task ToggleStatus(TodoUnit unit)
+  {
+    await TaskService.ToggleProcessStatusAsync(unit.Id);
+    await LoadTasks();
+  }
+
+  private async Task DeleteTask(TodoUnit unit)
+  {
+    await TaskService.DeleteTaskAsync(unit.Id);
+    await LoadTasks();
+  }
 }
