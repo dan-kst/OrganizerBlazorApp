@@ -4,6 +4,7 @@ using OrganizerBlazorApp.Application.Services;
 using OrganizerBlazorApp.Domain.Interfaces;
 using OrganizerBlazorApp.Infrastructure.Data;
 using OrganizerBlazorApp.Infrastructure.Repositories;
+using OrganizerBlazorApp.Infrastructure.Services;
 using OrganizerBlazorApp.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         b => b.MigrationsAssembly("OrganizerBlazorApp.Infrastructure")));
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<TaskService>();
+
+var webRoot = builder.Environment.WebRootPath;
+builder.Services.AddScoped<IMediaService>(s => new LocalMediaService(webRoot));
 
 var app = builder.Build();
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
