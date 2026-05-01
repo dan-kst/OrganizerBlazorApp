@@ -1,0 +1,19 @@
+@using OrganizerBlazorApp.Domain.Entities
+@using OrganizerBlazorApp.Domain.Enums
+@using OrganizerBlazorApp.Application.Services
+@inject TaskService TaskService
+@namespace OrganizerBlazorApp.Components.UI
+
+<div class="container">
+  <div class="mb-4">
+    <h6>Title</h6>
+    <input type="text" class="form-control" placeholder="Task Title" @bind="Unit.Title" />
+  </div>
+  <div class="mb-4">
+    <h6>Deadline</h6>
+    <input type="date" class="form-control" @bind="Unit.Deadline" />
+  </div> 
+</div>
+@code {
+  [Parameter] public TodoUnit Unit { get; set; } = new() { Id = new(new Byte[16]), Deadline = DateTime.Now.AddDays(1) };
+}

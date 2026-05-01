@@ -45,8 +45,18 @@
     <UnitDetailsView Unit="SelectedUnit"/>
   </ChildContent>
   <FooterContent>
-    <button class="btn btn-primary">Edit Unit</button>
+    <button class="btn btn-primary" @onclick="() => SwitchModal()">Edit Unit</button>
     <button class="btn btn-secondary" @onclick="() => IsDetailsModalOpen = false">Close</button>
+  </FooterContent>
+</Modal>
+
+<Modal IsOpen="IsEditorModalOpen" Title="@(EditedUnit.Id == Guid.Empty ? "New Task" : "Edit Task")">
+  <ChildContent>
+    <UnitEditorForm Unit="EditedUnit"/>
+  </ChildContent>
+  <FooterContent>
+    <button class="btn btn-primary" @onclick="() => UpdateTaskAsync()">Save</button>
+    <button class="btn btn-secondary" @onclick="() => IsEditorModalOpen = false">Close</button>
   </FooterContent>
 </Modal>
 
@@ -54,7 +64,9 @@
 @code {
   private IEnumerable<TodoUnit>? units;
   private TodoUnit? SelectedUnit { get; set; }
+  private TodoUnit EditedUnit { get; set; } = new(){Id = new Guid(new Byte[16])};
   private bool IsDetailsModalOpen { get; set; } = false;
+  private bool IsEditorModalOpen { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -74,10 +86,35 @@
   }
 
   // Unit Card delegates
+  private async Task UpdateTaskAsync()
+  {
+    if(SelectedUnit != null)
+    {
+      SelectedUnit.Clone(EditedUnit);
+      await Repository.UpdateAsync(SelectedUnit);
+    }
+    IsEditorModalOpen = false;
+    IsDetailsModalOpen = false;
+  }
+
   private void OpenDetailsModal(TodoUnit unit)
   {
     SelectedUnit = unit;
     IsDetailsModalOpen = true;
+  }
+
+  private void SwitchModal()
+  {
+    if(IsDetailsModalOpen)
+    {
+      EditedUnit.Clone(SelectedUnit);
+      IsDetailsModalOpen = false;
+      IsEditorModalOpen = true;
+    }
+    else{
+      IsEditorModalOpen = false;
+      IsDetailsModalOpen = true;
+    }
   }
 
   private async Task ToggleStatus(TodoUnit unit)
