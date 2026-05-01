@@ -26,7 +26,7 @@ public class TodoUnit : BaseEntity
   public DateTime Deadline { get; set; }
 
   /// <summary>
-  /// Gets or sets the unit's completion process status. 
+  /// Gets or sets the unit's completion process status.
   /// Logic triggers after changing status.
   /// </summary>
   public ProcessStatus Status { get; set; } = ProcessStatus.Active;
@@ -55,4 +55,19 @@ public class TodoUnit : BaseEntity
   /// Navigation property for mediafile attachments.
   /// </summary>
   public virtual ICollection<Attachment> Attachments { get; set; } = [];
+
+  /// <summary>
+  /// Perform a shallow copy of an class instance.
+  /// </summary>
+  public void Clone(TodoUnit newUnit)
+  {
+    this.Title = newUnit.Title;
+    this.Description = newUnit.Description;
+    this.Deadline = newUnit.Deadline;
+    this.Status = newUnit.Status;
+    this.IsRequired = newUnit.IsRequired;
+    this.ParentUnitId = newUnit.ParentUnitId;
+    this.SubTasks = [.. newUnit.SubTasks];
+    this.Attachments = [.. newUnit.Attachments];
+  }
 }
