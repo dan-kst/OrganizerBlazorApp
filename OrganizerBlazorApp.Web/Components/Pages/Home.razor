@@ -33,14 +33,28 @@
     <div class="row row-cols-1 row-cols-md-2 g-4">
       @foreach (var unit in units.Where(t => t.ParentUnitId == null))
       {
-        <UnitCard Unit="unit" OnDeleteClick="DeleteTask" OnStatusToggle="ToggleStatus"></UnitCard>
+        <UnitCard Unit="unit" OnDeleteClick="DeleteTask" OnStatusToggle="ToggleStatus" OnCardClick="OpenDetailsModal"></UnitCard>
       }
     </div>
   }
 </div>
 
+
+<Modal IsOpen="IsDetailsModalOpen" Title="Details">
+  <ChildContent>
+    <UnitDetailsView Unit="SelectedUnit"/>
+  </ChildContent>
+  <FooterContent>
+    <button class="btn btn-primary">Edit Unit</button>
+    <button class="btn btn-secondary" @onclick="() => IsDetailsModalOpen = false">Close</button>
+  </FooterContent>
+</Modal>
+
+
 @code {
-    private IEnumerable<TodoUnit>? units;
+  private IEnumerable<TodoUnit>? units;
+  private TodoUnit? SelectedUnit { get; set; }
+  private bool IsDetailsModalOpen { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -60,6 +74,12 @@
   }
 
   // Unit Card delegates
+  private void OpenDetailsModal(TodoUnit unit)
+  {
+    SelectedUnit = unit;
+    IsDetailsModalOpen = true;
+  }
+
   private async Task ToggleStatus(TodoUnit unit)
   {
     await TaskService.ToggleProcessStatusAsync(unit.Id);
