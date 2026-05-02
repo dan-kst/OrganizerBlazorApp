@@ -26,24 +26,9 @@
       </div>
     }
     <div class="mb-4">
-      <h6>Multimedia & Attachments</h6>
-      @if (Unit.Attachments.Any())
-      {
-        <div class="list-group list-group-flush border rounded">
-          @foreach (var file in Unit.Attachments)
-          {
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-              <span><i class="bi bi-file-earmark"></i> @file.FileName</span>
-              <button class="btn btn-sm btn-outline-secondary">Open</button>
-            </div>
-          }
-        </div>
-      }
-      else
-      {
-          <small class="text-muted">No attachments yet.</small>
-      }
-  </div>
+      <label>Multimedia & Attachments</label>
+        <MediaGallery Attachments="Unit.Attachments.ToList()" OnMediaSelected="media => _selectedMedia = media" />
+    </div>
 
     @if (Unit.SubTasks.Any())
     {
@@ -66,4 +51,13 @@
 @code {
   [Parameter] public TodoUnit? Unit { get; set; } = null!;
   [Parameter] public EventCallback OnEditRequested { get; set; }
+  private Attachment? _selectedMedia;
+
+  protected override void OnInitialized()
+  {
+    _selectedMedia = Unit.Attachments.FirstOrDefault();
+  }
+  
+  private bool IsImage(string ext) => new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(ext.ToLower());
+  private bool IsVideo(string ext) => new[] { ".mp4" }.Contains(ext.ToLower());
 }

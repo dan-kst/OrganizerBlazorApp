@@ -1,0 +1,83 @@
+@using OrganizerBlazorApp.Domain.Entities
+
+@namespace OrganizerBlazorApp.Components.UI
+
+@if (Attachments != null && Attachments.Any())
+{
+  <div class="list-group list-group-flush border rounded">
+    @foreach (var file in Attachments)
+    {
+      <div class="list-group-item d-flex justify-content-start align-items-center clickable-item" @onclick="() => SelectMedia(file)">
+        @if(IsImage(file.Extension))
+        {
+          <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          >
+            <path d="M7 3m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" />
+            <path d="M4.012 7.26a2.005 2.005 0 0 0 -1.012 1.737v10c0 1.1 .9 2 2 2h10c.75 0 1.158 -.385 1.5 -1" />
+            <path d="M17 7h.01" />
+            <path d="M7 13l3.644 -3.644a1.21 1.21 0 0 1 1.712 0l3.644 3.644" />
+            <path d="M15 12l1.644 -1.644a1.21 1.21 0 0 1 1.712 0l2.644 2.644" />
+          </svg>
+        }
+        else if(IsVideo(file.Extension))
+        {
+          <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          >
+            <path d="M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z" />
+            <path d="M3 6m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z" />
+          </svg>
+        }
+        else
+        {
+          <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          >
+            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+          </svg>
+        }
+        <span class="mx-3">@file.FileName</span>
+      </div>
+    }
+  </div>
+}
+
+<style>
+  .clickable-item:hover { background-color: #f8f9fa !important; border-color: #e9ecef; }
+</style>
+
+@code {
+  [Parameter] public List<Attachment> Attachments { get; set; } = new();
+  [Parameter] public EventCallback<Attachment> OnMediaSelected { get; set; }
+
+  private async Task SelectMedia(Attachment file) => await OnMediaSelected.InvokeAsync(file);
+
+  private bool IsImage(string ext) => new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(ext.ToLower());
+  private bool IsVideo(string ext) => new[] { ".mp4", ".mov" }.Contains(ext.ToLower());
+}
