@@ -41,7 +41,7 @@
         }
 
         @* Delete Button *@
-        <button class="btn btn-outline-danger ms-4" @onclick="() => OnDeleteClick.InvokeAsync(Unit)">
+        <button class="btn btn-outline-danger ms-4" @onclick="() => OnDeleteClick.InvokeAsync(Unit)" @onclick:stopPropagation="true">
           <i class="bi bi-trash"></i>
         </button>
       </div>
