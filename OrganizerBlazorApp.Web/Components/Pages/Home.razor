@@ -55,7 +55,7 @@
     <UnitEditorForm Unit="EditedUnit"/>
   </ChildContent>
   <FooterContent>
-    <button class="btn btn-primary" @onclick="() => UpdateTaskAsync()">Save</button>
+    <button class="btn btn-primary" @onclick="() => UpdateTaskAsync(EditedUnit)">Save</button>
     <button class="btn btn-secondary" @onclick="() => IsEditorModalOpen = false">Close</button>
   </FooterContent>
 </Modal>
@@ -86,12 +86,11 @@
   }
 
   // Unit Card delegates
-  private async Task UpdateTaskAsync()
+  private async Task UpdateTaskAsync(TodoUnit updatedUnit)
   {
-    if(SelectedUnit != null)
+    if(updatedUnit != null)
     {
-      SelectedUnit.Clone(EditedUnit);
-      await Repository.UpdateAsync(SelectedUnit);
+      await Repository.UpdateAsync(updatedUnit);
     }
     IsEditorModalOpen = false;
     IsDetailsModalOpen = false;

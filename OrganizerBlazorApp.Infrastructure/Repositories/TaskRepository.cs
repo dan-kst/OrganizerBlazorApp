@@ -21,14 +21,40 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
   public async Task<IEnumerable<TodoUnit>?> GetAllAsync()
   {
     return await _context.TodoUnits
-        .Include(t => t.SubTasks)
-        .Include(t => t.Attachments)
-        .Where(t => t.ParentUnitId == null)
+        .Include(u => u.SubTasks)
+        .Include(u => u.Attachments)
+        .Where(u => u.ParentUnitId == null)
         .ToListAsync();
   }
-  public async Task UpdateAsync(TodoUnit unit)
+  /// <summary>
+  /// Update simple fields of an entry in database.
+  /// Add or remove attachments.
+  /// <param name="updatedUnit">A reference to updated unit.</param>
+  /// </summary>
+  public async Task UpdateAsync(TodoUnit updatedUnit)
   {
-    _context.Entry(unit).State = EntityState.Modified;
+    var existingUnit = await _context.TodoUnits
+      .Include(u => u.Attachments)
+      .Include(u => u.SubTasks)
+      .FirstOrDefaultAsync(u => u.Id == updatedUnit.Id);
+
+    if (existingUnit == null) return;
+
+    // Simple fields
+    _context.Entry(existingUnit).CurrentValues.SetValues(updatedUnit);
+
+    // Attachment logics
+    foreach (var incomingAttachment in updatedUnit.Attachments)
+    {
+      var existingAttachment = existingUnit.Attachments
+          .FirstOrDefault(a => a.Id == incomingAttachment.Id);
+      if (existingAttachment == null)
+      {
+        // Add
+        existingUnit.Attachments.Add(incomingAttachment);
+        _context.Entry(incomingAttachment).State = EntityState.Added;
+      }
+    }
     await _context.SaveChangesAsync();
   }
   public async Task DeleteAsync(Guid id)
