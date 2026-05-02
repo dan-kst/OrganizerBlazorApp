@@ -44,6 +44,18 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
     _context.Entry(existingUnit).CurrentValues.SetValues(updatedUnit);
 
     // Attachment logics
+    //Remove
+    var remainingAttachmentsIds = updatedUnit.Attachments
+      .Select(a => a.Id)
+      .ToList();
+    var attachmentsToRemove = _context.Attachments
+      .Where(dbA => !remainingAttachmentsIds.Contains(dbA.Id))
+      .ToList();
+    foreach (var attachment in attachmentsToRemove)
+    {
+      _context.Attachments.Remove(attachment);
+    }
+
     foreach (var incomingAttachment in updatedUnit.Attachments)
     {
       var existingAttachment = existingUnit.Attachments
@@ -53,6 +65,10 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
         // Add
         existingUnit.Attachments.Add(incomingAttachment);
         _context.Entry(incomingAttachment).State = EntityState.Added;
+      }
+      else
+      {
+        _context.Entry(existingAttachment).CurrentValues.SetValues(incomingAttachment);
       }
     }
     await _context.SaveChangesAsync();

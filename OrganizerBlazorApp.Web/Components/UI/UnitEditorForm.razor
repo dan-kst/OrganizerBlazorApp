@@ -16,7 +16,7 @@
   </div>
   <div class="mb-2">
     <label>Attach media (photo, video, docs):</label>
-      <MediaGallery Attachments="Unit.Attachments.ToList()" SelectedMedia="_selectedMedia"/>  
+      <MediaGallery Attachments="Unit.Attachments.ToList()" SelectedMedia="_selectedMedia" OnRemoveRequest="DeleteFile" IsEditable="true"/>  
   </div>
   <div class="mb-4">
     <InputFile OnChange="UploadFiles" class="form-control" multiple />

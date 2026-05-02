@@ -29,7 +29,7 @@
   <div class="list-group list-group-flush border rounded">
     @foreach (var file in Attachments)
     {
-      <div class="list-group-item d-flex justify-content-start align-items-center clickable-item" @onclick="() => SelectedMedia = file">
+      <div class="list-group-item d-flex justify-content-between align-items-center clickable-item" @onclick="() => SelectedMedia = file">
         @if(IsImage(file.Extension))
         {
           <i class="bi bi-image"></i>
@@ -42,7 +42,18 @@
         {
           <i class="bi bi-file-earmark-text-fill"></i>
         }
-        <span class="mx-3">@file.FileName</span>
+        @if(IsEditable)
+        {
+          <input type="text" class="form-control form-control-sm border-0 bg-transparent" 
+                       @bind="file.FileName" />
+          <button class="btn btn-sm text-danger" @onclick="() => RemoveAttachment(file)">
+            <i class="bi bi-trash"></i>
+          </button>
+        }
+        else
+        {
+          <span class="mx-3">@file.FileName</span>
+        }
       </div>
     }
   </div>
@@ -58,6 +69,10 @@ else
 @code {
   [Parameter] public List<Attachment> Attachments { get; set; } = new();
   [Parameter] public Attachment? SelectedMedia { get; set; }
+  [Parameter] public bool IsEditable { get; set; } = false;
+  [Parameter] public EventCallback<Attachment> OnRemoveRequest { get; set; }
+
+  private async Task RemoveAttachment(Attachment attachment) => await OnRemoveRequest.InvokeAsync(attachment);
 
   private bool IsImage(string ext) => new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(ext.ToLower());
   private bool IsVideo(string ext) => new[] { ".mp4", ".mov" }.Contains(ext.ToLower());
