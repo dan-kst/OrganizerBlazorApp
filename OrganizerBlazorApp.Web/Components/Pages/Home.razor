@@ -68,20 +68,19 @@
   private bool IsDetailsModalOpen { get; set; } = false;
   private bool IsEditorModalOpen { get; set; } = false;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadTasks();
-    }
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadTasks();
+  }
 
-    private async Task LoadTasks()
-    {
-        units = await Repository.GetAllAsync();
-    }
+  private async Task LoadTasks()
+  {
+    units = await Repository.GetAllAsync();
+  }
 
   private async Task AddSampleTask()
   {
     await TaskService.SeedSampleTaskAsync();
-    // Refresh the list
     await LoadTasks();
   }
 
@@ -106,7 +105,7 @@
   {
     if(IsDetailsModalOpen)
     {
-      EditedUnit.Clone(SelectedUnit);
+      EditedUnit = SelectedUnit.Clone();
       IsDetailsModalOpen = false;
       IsEditorModalOpen = true;
     }

@@ -57,18 +57,15 @@ public class TodoUnit : BaseEntity
   public virtual ICollection<Attachment> Attachments { get; set; } = [];
 
   /// <summary>
-  /// Perform a shallow copy of an class instance.
+  /// Perform a deep copy of an class instance.
+  /// Clone unit's simple fields. Then copy every item in all lists.
   /// </summary>
-  public void Clone(TodoUnit newUnit)
+  public TodoUnit Clone()
   {
-    this.Id = newUnit.Id;
-    this.Title = newUnit.Title;
-    this.Description = newUnit.Description;
-    this.Deadline = newUnit.Deadline;
-    this.Status = newUnit.Status;
-    this.IsRequired = newUnit.IsRequired;
-    this.ParentUnitId = newUnit.ParentUnitId;
-    this.SubTasks = [.. newUnit.SubTasks];
-    this.Attachments = [.. newUnit.Attachments];
+    var clone = (TodoUnit)this.MemberwiseClone();
+    clone.Attachments = [.. this.Attachments.Select(a => a.Clone())];
+    clone.SubTasks = [.. this.SubTasks.Select(s => s.Clone())];
+
+    return clone;
   }
 }

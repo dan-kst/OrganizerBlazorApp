@@ -22,4 +22,11 @@ public class Attachment : BaseEntity
   public Guid ParentUnitId { get; set; }
   /// <summary>A reference to parent unit.</summary>
   public virtual TodoUnit ParentUnit { get; set; } = null!;
+  /// <summary>
+  /// Perform a shallow copy of an class instance.
+  /// </summary>
+  public Attachment Clone()
+  {
+    return (Attachment)this.MemberwiseClone();
+  }
 }
