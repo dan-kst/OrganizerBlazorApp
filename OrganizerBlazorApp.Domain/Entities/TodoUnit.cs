@@ -61,6 +61,7 @@ public class TodoUnit : BaseEntity
   /// </summary>
   public void Clone(TodoUnit newUnit)
   {
+    this.Id = newUnit.Id;
     this.Title = newUnit.Title;
     this.Description = newUnit.Description;
     this.Deadline = newUnit.Deadline;
