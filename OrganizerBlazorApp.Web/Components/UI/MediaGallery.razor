@@ -1,13 +1,35 @@
 @using OrganizerBlazorApp.Domain.Entities
 
 @namespace OrganizerBlazorApp.Components.UI
-
+@if (SelectedMedia != null)
+{
+  <div class="media-preview-area mb-4 p-2 border rounded bg-black d-flex justify-content-center align-items-center" style="min-height: 300px;">
+    @if (IsImage(SelectedMedia.Extension))
+    {
+      <img src="@SelectedMedia.FilePath" class="img-fluid rounded" style="aspect-ratio: 16/9; object-fit: contain;" />
+    }
+    else if (IsVideo(SelectedMedia.Extension))
+    {
+      <video controls class="w-100 rounded" style="max-height: 400px;">
+        <source src="@SelectedMedia.FilePath" type="video/mp4">
+      </video>
+    }
+    else
+    {
+      <div class="text-white text-center">
+        <i class="bi bi-file-earmark-text fs-1"></i>
+        <p>@SelectedMedia.FileName</p>
+        <a href="@SelectedMedia.FilePath" target="_blank" class="btn btn-outline-light">Open</a>
+      </div>
+    }
+  </div>
+}
 @if (Attachments != null && Attachments.Any())
 {
   <div class="list-group list-group-flush border rounded">
     @foreach (var file in Attachments)
     {
-      <div class="list-group-item d-flex justify-content-start align-items-center clickable-item" @onclick="() => SelectMedia(file)">
+      <div class="list-group-item d-flex justify-content-start align-items-center clickable-item" @onclick="() => SelectedMedia = file">
         @if(IsImage(file.Extension))
         {
           <i class="bi bi-image"></i>
@@ -25,16 +47,17 @@
     }
   </div>
 }
-
+else
+{
+  <div class="list-group-item d-flex justify-content-between align-items-center text-muted">No attachments yet.</div>
+}
 <style>
   .clickable-item:hover { background-color: #f8f9fa !important; border-color: #e9ecef; }
 </style>
 
 @code {
   [Parameter] public List<Attachment> Attachments { get; set; } = new();
-  [Parameter] public EventCallback<Attachment> OnMediaSelected { get; set; }
-
-  private async Task SelectMedia(Attachment file) => await OnMediaSelected.InvokeAsync(file);
+  [Parameter] public Attachment? SelectedMedia { get; set; }
 
   private bool IsImage(string ext) => new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(ext.ToLower());
   private bool IsVideo(string ext) => new[] { ".mp4", ".mov" }.Contains(ext.ToLower());

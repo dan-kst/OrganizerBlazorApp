@@ -16,21 +16,7 @@
   </div>
   <div class="mb-2">
     <label>Attach media (photo, video, docs):</label>
-      <div class="list-group list-group-flush border rounded">
-        @if (Unit.Attachments.Any())
-        {
-            @foreach (var file in Unit.Attachments)
-            {
-              <div class="list-group-item d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-file-earmark"></i> @file.FileName</span>
-              </div>
-            }
-          }
-          else
-          {
-            <div class="list-group-item d-flex justify-content-between align-items-center text-muted">No attachments yet.</div>
-          }
-      </div>
+      <MediaGallery Attachments="Unit.Attachments.ToList()" SelectedMedia="_selectedMedia"/>  
   </div>
   <div class="mb-4">
     <InputFile OnChange="UploadFiles" class="form-control" multiple />
@@ -38,6 +24,12 @@
 </div>
 @code {
   [Parameter] public TodoUnit Unit { get; set; } = new() { Id = new(new Byte[16]), Deadline = DateTime.Now.AddDays(1) };
+  private Attachment? _selectedMedia;
+
+  protected override void OnInitialized()
+  {
+    _selectedMedia = Unit.Attachments.FirstOrDefault();
+  }
   private async Task UploadFiles(InputFileChangeEventArgs e)
   {
     foreach (var file in e.GetMultipleFiles())

@@ -26,31 +26,9 @@
       </div>
     }
     <div class="mb-4">
-      @if (_selectedMedia != null)
-      {
-        <div class="media-preview-area mb-4 p-2 border rounded bg-black d-flex justify-content-center align-items-center" style="min-height: 300px;">
-          @if (IsImage(_selectedMedia.Extension))
-          {
-            <img src="@_selectedMedia.FilePath" class="img-fluid rounded" style="aspect-ratio: 16/9; object-fit: contain;" />
-          }
-          else if (IsVideo(_selectedMedia.Extension))
-          {
-            <video controls class="w-100 rounded" style="max-height: 400px;">
-              <source src="@_selectedMedia.FilePath" type="video/mp4">
-            </video>
-          }
-          else
-          {
-            <div class="text-white text-center">
-              <i class="bi bi-file-earmark-text fs-1"></i>
-              <p>@_selectedMedia.FileName</p>
-              <a href="@_selectedMedia.FilePath" target="_blank" class="btn btn-outline-light">Open</a>
-            </div>
-          }
-        </div>
-      }
+      
       <label>Multimedia & Attachments</label>
-        <MediaGallery Attachments="Unit.Attachments.ToList()" OnMediaSelected="media => _selectedMedia = media" />
+        <MediaGallery Attachments="Unit.Attachments.ToList()" SelectedMedia="_selectedMedia" />
     </div>
 
     @if (Unit.SubTasks.Any())
