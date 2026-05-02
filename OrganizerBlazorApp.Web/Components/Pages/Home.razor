@@ -40,23 +40,23 @@
 </div>
 
 
-<Modal IsOpen="IsDetailsModalOpen" Title="Details">
+<Modal IsOpen="_isDetailsModalOpen" Title="Details">
   <ChildContent>
     <UnitDetailsView Unit="SelectedUnit"/>
   </ChildContent>
   <FooterContent>
     <button class="btn btn-primary" @onclick="() => SwitchModal()">Edit Unit</button>
-    <button class="btn btn-secondary" @onclick="() => IsDetailsModalOpen = false">Close</button>
+    <button class="btn btn-secondary" @onclick="() => _isDetailsModalOpen = false">Close</button>
   </FooterContent>
 </Modal>
 
-<Modal IsOpen="IsEditorModalOpen" Title="@(EditedUnit.Id == Guid.Empty ? "New Task" : "Edit Task")">
+<Modal IsOpen="_isEditorModalOpen" Title="@(EditedUnit.Id == Guid.Empty ? "New Task" : "Edit Task")">
   <ChildContent>
     <UnitEditorForm Unit="EditedUnit"/>
   </ChildContent>
   <FooterContent>
     <button class="btn btn-primary" @onclick="() => UpdateTaskAsync(EditedUnit)">Save</button>
-    <button class="btn btn-secondary" @onclick="() => IsEditorModalOpen = false">Close</button>
+    <button class="btn btn-secondary" @onclick="() => _isEditorModalOpen = false">Close</button>
   </FooterContent>
 </Modal>
 
@@ -65,8 +65,8 @@
   private IEnumerable<TodoUnit>? units;
   private TodoUnit? SelectedUnit { get; set; }
   private TodoUnit EditedUnit { get; set; } = new(){Id = new Guid(new Byte[16])};
-  private bool IsDetailsModalOpen { get; set; } = false;
-  private bool IsEditorModalOpen { get; set; } = false;
+  private bool _isDetailsModalOpen { get; set; } = false;
+  private bool _isEditorModalOpen { get; set; } = false;
 
   protected override async Task OnInitializedAsync()
   {
@@ -91,27 +91,27 @@
     {
       await Repository.UpdateAsync(updatedUnit);
     }
-    IsEditorModalOpen = false;
-    IsDetailsModalOpen = false;
+    _isEditorModalOpen = false;
+    _isDetailsModalOpen = false;
   }
 
   private void OpenDetailsModal(TodoUnit unit)
   {
     SelectedUnit = unit;
-    IsDetailsModalOpen = true;
+    _isDetailsModalOpen = true;
   }
 
   private void SwitchModal()
   {
-    if(IsDetailsModalOpen)
+    if(_isDetailsModalOpen)
     {
       EditedUnit = SelectedUnit.Clone();
-      IsDetailsModalOpen = false;
-      IsEditorModalOpen = true;
+      _isDetailsModalOpen = false;
+      _isEditorModalOpen = true;
     }
     else{
-      IsEditorModalOpen = false;
-      IsDetailsModalOpen = true;
+      _isEditorModalOpen = false;
+      _isDetailsModalOpen = true;
     }
   }
 
