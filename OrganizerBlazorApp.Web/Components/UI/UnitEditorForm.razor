@@ -1,19 +1,41 @@
 @using OrganizerBlazorApp.Domain.Entities
 @using OrganizerBlazorApp.Domain.Enums
 @using OrganizerBlazorApp.Application.Services
-@inject TaskService TaskService
+@using OrganizerBlazorApp.Domain.Interfaces
+@inject IMediaService MediaService
 @namespace OrganizerBlazorApp.Components.UI
 
 <div class="container">
   <div class="mb-4">
-    <h6>Title</h6>
+    <label>Title</label>
     <input type="text" class="form-control" placeholder="Task Title" @bind="Unit.Title" />
   </div>
   <div class="mb-4">
-    <h6>Deadline</h6>
+    <label>Deadline</label>
     <input type="date" class="form-control" @bind="Unit.Deadline" />
-  </div> 
+  </div>
+  <div class="mt-3">
+    <label>Attach media (photo, video, docs):</label>
+    <InputFile OnChange="UploadFiles" class="form-control" multiple />
+</div>
 </div>
 @code {
   [Parameter] public TodoUnit Unit { get; set; } = new() { Id = new(new Byte[16]), Deadline = DateTime.Now.AddDays(1) };
+  private async Task UploadFiles(InputFileChangeEventArgs e)
+  {
+    foreach (var file in e.GetMultipleFiles())
+    {
+      var savedPath = await MediaService.UploadFileAsync(file.OpenReadStream(10 * 1024 * 1024), file.Name);
+
+      Unit.Attachments.Add(new Attachment
+      {
+        Id = Guid.NewGuid(),
+        FileName = file.Name,
+        FilePath = savedPath,
+        Extension = Path.GetExtension(file.Name),
+        ParentUnit = Unit,
+        ParentUnitId = Unit.Id
+      });
+    }
+  }
 }

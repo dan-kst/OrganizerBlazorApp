@@ -25,6 +25,25 @@
         <p class="border-start ps-3 py-1 bg-light">@Unit.Description</p>
       </div>
     }
+    <div class="mb-4">
+      <h6>Multimedia & Attachments</h6>
+      @if (Unit.Attachments.Any())
+      {
+        <div class="list-group list-group-flush border rounded">
+          @foreach (var file in Unit.Attachments)
+          {
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-file-earmark"></i> @file.FileName</span>
+              <button class="btn btn-sm btn-outline-secondary">Open</button>
+            </div>
+          }
+        </div>
+      }
+      else
+      {
+          <small class="text-muted">No attachments yet.</small>
+      }
+  </div>
 
     @if (Unit.SubTasks.Any())
     {
