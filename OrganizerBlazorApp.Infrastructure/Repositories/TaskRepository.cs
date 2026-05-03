@@ -40,10 +40,10 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
 
     if (existingUnit == null) return;
 
-    // Simple fields
+    // 1. Simple fields
     _context.Entry(existingUnit).CurrentValues.SetValues(updatedUnit);
 
-    // Attachment logics
+    // 2. Attachment logics
     //Remove
     var remainingAttachmentsIds = updatedUnit.Attachments
       .Select(a => a.Id)
@@ -69,6 +69,35 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
       else
       {
         _context.Entry(existingAttachment).CurrentValues.SetValues(incomingAttachment);
+      }
+    }
+
+    // 3. Subtasks logic
+    // Remove
+    var remainingSubtasksIds = updatedUnit.SubTasks
+      .Select(uS => uS.Id)
+      .ToList();
+    var subtasksToRemove = existingUnit.SubTasks
+      .Where(e => !remainingSubtasksIds.Contains(e.Id))
+      .ToList();
+    foreach (var s in subtasksToRemove)
+    {
+      existingUnit.SubTasks.Remove(s);
+    }
+
+    foreach (var unitSubtask in updatedUnit.SubTasks)
+    {
+      var subtasks = existingUnit.SubTasks.FirstOrDefault(s => s.Id == unitSubtask.Id);
+      if (subtasks == null)
+      {
+        // Add
+        existingUnit.SubTasks.Add(unitSubtask);
+        _context.Entry(unitSubtask).State = EntityState.Added;
+
+      }
+      else
+      {
+        _context.Entry(subtasks).CurrentValues.SetValues(unitSubtask);
       }
     }
     await _context.SaveChangesAsync();
