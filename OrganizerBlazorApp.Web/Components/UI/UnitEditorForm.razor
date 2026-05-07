@@ -7,8 +7,9 @@
 
 <div class="container">
   <div class="mb-4">
-    <label class="form-control">Title</label>
-    <input type="text" class="form-control" placeholder="Task Title" @bind="Unit.Title" />
+    <label class="form-label">Title</label>
+    <InputText @bind-Value="Unit.Title" class="form-control"/>
+    <ValidationMessage For="@(() => Unit.Title)" class="text-danger small"/>
   </div>
   <div class="mb-4">
     <label>Deadline</label>
@@ -29,6 +30,7 @@
 @code {
   [Parameter] public TodoUnit Unit { get; set; } = new() { Id = new(new Byte[16]), Deadline = DateTime.Now.AddDays(1) };
   private Attachment? _selectedMedia;
+  private string _newSubTaskTitle = "";
 
   protected override void OnInitialized()
   {
