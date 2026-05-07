@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 using OrganizerBlazorApp.Domain.Common;
 using OrganizerBlazorApp.Domain.Enums;
 
@@ -9,6 +11,8 @@ namespace OrganizerBlazorApp.Domain.Entities;
 /// </summary>
 public class TodoUnit : BaseEntity
 {
+  [Required(ErrorMessage = "Заголовок обов'язковий")]
+  [StringLength(100, ErrorMessage = "Занадто довгий заголовок")]
   /// <summary>
   /// Gets or sets the title of the unit.
   /// </summary>
@@ -23,7 +27,7 @@ public class TodoUnit : BaseEntity
   /// Gets or sets the unit's deadline.
   /// Logic triggers after this date to prompt user action.
   /// </summary>
-  public DateTime Deadline { get; set; }
+  public DateTime Deadline { get; set; } = DateTime.Now.AddDays(1);
 
   /// <summary>
   /// Gets or sets the unit's completion process status.

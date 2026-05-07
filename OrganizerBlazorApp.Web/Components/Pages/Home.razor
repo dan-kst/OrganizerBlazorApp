@@ -13,9 +13,14 @@
   <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>My Business Tasks</h1>
-        <button class="btn btn-primary" @onclick="AddSampleTask">
-            + Seed Sample Task
-        </button>
+        <div class="d-flex justify-content-end align-items-center mb-4">
+          <button class="btn btn-primary mx-2" @onclick="OpenCreatorModal">
+            <i class="bi bi-plus-circle me-2"></i>New Task
+          </button>
+          <button class="btn btn-outline-primary" @onclick="AddSampleTask">
+            <i class="bi bi-dice-3"></i>
+          </button>
+        </div>
     </div>
 
   @if (units == null)
@@ -45,20 +50,23 @@
     <UnitDetailsView Unit="SelectedUnit"/>
   </ChildContent>
   <FooterContent>
-    <button class="btn btn-primary" @onclick="() => SwitchModal()">Edit Unit</button>
+    <button class="btn btn-primary" @onclick="() => SwitchModal()">Edit</button>
     <button class="btn btn-secondary" @onclick="() => _isDetailsModalOpen = false">Close</button>
   </FooterContent>
 </Modal>
 
-<Modal IsOpen="_isEditorModalOpen" Title="@(EditedUnit.Id == Guid.Empty ? "New Task" : "Edit Task")">
-  <ChildContent>
-    <UnitEditorForm Unit="EditedUnit"/>
-  </ChildContent>
-  <FooterContent>
-    <button class="btn btn-primary" @onclick="() => UpdateTaskAsync(EditedUnit)">Save</button>
-    <button class="btn btn-secondary" @onclick="() => _isEditorModalOpen = false">Close</button>
-  </FooterContent>
-</Modal>
+<EditForm Model="EditedUnit" OnValidSubmit="() => UpdateTaskAsync(EditedUnit)">
+  <Modal IsOpen="_isEditorModalOpen" Title="@(EditedUnit.Id == Guid.Empty ? "New Task" : "Edit Task")">
+    <ChildContent>
+      <DataAnnotationsValidator />
+      <UnitEditorForm Unit="EditedUnit"/>
+    </ChildContent>
+    <FooterContent>
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-secondary" @onclick="() => _isEditorModalOpen = false">Cancel</button>
+    </FooterContent>
+  </Modal>
+</EditForm>
 
 
 @code {
@@ -89,16 +97,28 @@
   {
     if(updatedUnit != null)
     {
+      if(updatedUnit.Id == Guid.Empty)
+      {
+        updatedUnit.Id = Guid.NewGuid();
+        await TaskService.CreateTaskAsync(updatedUnit);
+      }
       await Repository.UpdateAsync(updatedUnit);
     }
     _isEditorModalOpen = false;
     _isDetailsModalOpen = false;
+    await LoadTasks();
   }
 
   private void OpenDetailsModal(TodoUnit unit)
   {
     SelectedUnit = unit;
     _isDetailsModalOpen = true;
+  }
+
+  private void OpenCreatorModal()
+  {
+    EditedUnit = new(){Id = new Guid(new Byte[16])};
+    _isEditorModalOpen = true;
   }
 
   private void SwitchModal()
