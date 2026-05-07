@@ -38,8 +38,6 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
       .Include(u => u.SubTasks)
       .FirstOrDefaultAsync(u => u.Id == updatedUnit.Id);
 
-    if (existingUnit == null) return;
-
     // 1. Simple fields
     _context.Entry(existingUnit).CurrentValues.SetValues(updatedUnit);
 
@@ -83,6 +81,7 @@ public class TaskRepository(AppDbContext context) : ITaskRepository
     foreach (var s in subtasksToRemove)
     {
       existingUnit.SubTasks.Remove(s);
+      _context.Entry(s).State = EntityState.Deleted;
     }
 
     foreach (var unitSubtask in updatedUnit.SubTasks)
