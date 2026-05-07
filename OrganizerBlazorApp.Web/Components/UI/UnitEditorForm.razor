@@ -7,12 +7,12 @@
 
 <div class="container">
   <div class="mb-4">
-    <label>Title</label>
+    <label class="form-control">Title</label>
     <input type="text" class="form-control" placeholder="Task Title" @bind="Unit.Title" />
   </div>
   <div class="mb-4">
     <label>Deadline</label>
-    <input type="date" class="form-control" @bind="Unit.Deadline" />
+    <input type="datetime-local" class="form-control" @bind="Unit.Deadline" />
   </div>
   <div class="mb-2">
     <label>Attach media (photo, video, docs):</label>
