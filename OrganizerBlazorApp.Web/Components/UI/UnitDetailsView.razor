@@ -1,5 +1,6 @@
 @using OrganizerBlazorApp.Domain.Entities
 @using OrganizerBlazorApp.Domain.Enums
+@using OrganizerBlazorApp.Components.UI
 
 @namespace OrganizerBlazorApp.Components.UI
 
@@ -30,22 +31,10 @@
       <label>Multimedia & Attachments</label>
         <MediaGallery Attachments="Unit.Attachments.ToList()" SelectedMedia="_selectedMedia" />
     </div>
-
-    @if (Unit.SubTasks.Any())
-    {
-      <div class="mb-4">
-        <h6>Subtasks (@Unit.SubTasks.Count(s => s.Status == ProcessStatus.Completed)/@Unit.SubTasks.Count)</h6>
-        <div class="list-group">
-          @foreach (var sub in Unit.SubTasks)
-          {
-            <div class="list-group-item d-flex align-items-center">
-              <i class="bi @(sub.Status == ProcessStatus.Completed ? "bi-check-circle-fill text-success" : "bi-circle text-muted") me-2"></i>
-              <span class="@(sub.Status == ProcessStatus.Completed ? "text-decoration-line-through" : "")">@sub.Title</span>
-            </div>
-          }
-        </div>
-      </div>
-    }
+    <div class="mb-4">
+      <label>Subtasks</label>
+        <SubtasksList Unit="Unit"/>
+    </div>
   </div>
 }
 
