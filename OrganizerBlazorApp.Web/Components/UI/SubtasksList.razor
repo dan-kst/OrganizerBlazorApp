@@ -97,6 +97,7 @@ else
       Status = ProcessStatus.Active,
       Deadline = Unit.Deadline
     });
+    Unit.UpdateStatusFromSubTasks();
     _newSubTaskTitle = "";
   }
 
@@ -106,6 +107,7 @@ else
     {
       if(unit.Status == ProcessStatus.Active) unit.Status = ProcessStatus.Completed;
       else if(unit.Status == ProcessStatus.Completed) unit.Status = ProcessStatus.Active;
+      Unit.UpdateStatusFromSubTasks();
     }
   }
 
