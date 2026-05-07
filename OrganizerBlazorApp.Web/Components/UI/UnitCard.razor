@@ -6,7 +6,7 @@
 
 <div class="col">
   <div class="card h-100 shadow-sm clickable-card mt-2 @TodoUnitCss.GetDeadlineColorClass(Unit)" @onclick="() => OnCardClick.InvokeAsync(Unit)">
-    <div class="card-body d-flex align-items-center justify-content-between p-3">
+    <div class="card-body d-flex align-items-center justify-content-between p-3 user-select-none">
       <div class="d-flex align-items-center">
         @* StopPropagation prevents the card click event from firing *@
         <input type="checkbox" class="form-check-input me-3 pe-auto" 
@@ -15,7 +15,7 @@
                 @onclick:stopPropagation="true" />
         
         <div>
-          <h6 class="mb-0 @(Unit.Status == ProcessStatus.Completed ? "text-decoration-line-through text-muted" : "")">
+          <h6 class="mb-0 @(Unit.Status == ProcessStatus.Completed ? "text-decoration-line-through text-muted user-select-none" : "")">
             @Unit.Title
           </h6>
           <small class="text-muted user-select-none">@Unit.Deadline.ToString("dd.MM HH:mm")</small>
@@ -26,7 +26,7 @@
         @* Multimedia Icons Indicator *@
         @if (Unit.Attachments.Any())
         {
-          <div class="me-2 text-primary">s
+          <div class="me-2 text-primary">
             <i class="bi bi-paperclip"></i>
             <small>@Unit.Attachments.Count</small>
           </div>
@@ -41,7 +41,7 @@
         }
 
         @* Delete Button *@
-        <button class="btn btn-outline-danger ms-4" @onclick="() => OnDeleteClick.InvokeAsync(Unit)" @onclick:stopPropagation="true">
+        <button class="btn btn-outline-danger ms-4" @onclick="() => _isConfirmModalOpen = true" @onclick:stopPropagation="true">
           <i class="bi bi-trash"></i>
         </button>
       </div>
@@ -49,8 +49,20 @@
   </div>
 </div>
 
+<Modal IsOpen="_isConfirmModalOpen" Title="Confirm Delete">
+  <ChildContent>
+    <p>Are you sure to delete this task — "@Unit.Title"?</p>
+  </ChildContent>
+  <FooterContent>
+    <button class="btn btn-danger" @onclick="() => {OnDeleteClick.InvokeAsync(Unit); _isConfirmModalOpen = false;}">Confirm</button>
+    <button class="btn btn-secondary" @onclick="() => _isConfirmModalOpen = false">Cancel</button>
+  </FooterContent>
+</Modal>
+
 <style>
-    .clickable-card:hover { background-color: #f8f9fa !important; border-color: #e9ecef; }
+  .clickable-card:hover { background-color: #f8f9fa !important; border-color: #e9ecef; }
+  .shadow.border-danger { box-shadow: 0 0.25rem 0.5rem #dc3545 !important; }
+  .shadow.border-warning { box-shadow: 0 0.25rem 0.5rem #ffc107 !important; }
 </style>
 
 @code {
@@ -58,4 +70,5 @@
   [Parameter] public EventCallback<TodoUnit> OnCardClick { get; set; }
   [Parameter] public EventCallback<TodoUnit> OnDeleteClick { get; set; }
   [Parameter] public EventCallback<TodoUnit> OnStatusToggle { get; set; }
+  private bool _isConfirmModalOpen { get; set; } = false;
 }
