@@ -21,6 +21,10 @@
   <div class="mb-4">
     <InputFile OnChange="UploadFiles" class="form-control" multiple />
   </div>
+  <div class="mt-4 border-top pt-3">
+    <label>Subtasks</label>
+    <SubtasksList Unit="Unit" IsEditable="true"/>
+  </div>
 </div>
 @code {
   [Parameter] public TodoUnit Unit { get; set; } = new() { Id = new(new Byte[16]), Deadline = DateTime.Now.AddDays(1) };
