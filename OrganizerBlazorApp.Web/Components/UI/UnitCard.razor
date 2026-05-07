@@ -14,7 +14,7 @@
                 @onchange="() => OnStatusToggle.InvokeAsync(Unit)"
                 @onclick:stopPropagation="true" />
         
-        <div>
+        <div class="container">
           <h6 class="mb-0 @(Unit.Status == ProcessStatus.Completed ? "text-decoration-line-through text-muted user-select-none" : "")">
             @Unit.Title
           </h6>
