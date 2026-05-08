@@ -30,7 +30,6 @@
 @code {
   [Parameter] public TodoUnit Unit { get; set; } = new() { Id = new(new Byte[16]), Deadline = DateTime.Now.AddDays(1) };
   private Attachment? _selectedMedia;
-  private string _newSubTaskTitle = "";
 
   protected override void OnInitialized()
   {
