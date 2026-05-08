@@ -19,14 +19,16 @@
     <label>Description</label>
     <textarea class="form-control" @bind="Unit.Description"></textarea>
   </div>
-  <div class="mb-2">
+  <div class="mb-4">
     <label>Attach media (photo, video, docs):</label>
-      <MediaGallery Attachments="Unit.Attachments.ToList()" SelectedMedia="_selectedMedia" OnRemoveRequest="DeleteFile" IsEditable="true"/>  
+      <div class="mb-2">
+        <InputFile OnChange="UploadFiles" class="form-control" multiple />
+      </div>
+      <div class="mb-2">
+        <MediaGallery Attachments="Unit.Attachments.ToList()" SelectedMedia="_selectedMedia" OnRemoveRequest="DeleteFile" IsEditable="true"/>  
+      </div>
   </div>
   <div class="mb-4">
-    <InputFile OnChange="UploadFiles" class="form-control" multiple />
-  </div>
-  <div class="mt-4 border-top pt-3">
     <label>Subtasks</label>
     <SubtasksList Unit="Unit" IsEditable="true"/>
   </div>

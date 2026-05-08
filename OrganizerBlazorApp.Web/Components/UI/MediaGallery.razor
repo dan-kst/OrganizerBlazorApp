@@ -1,7 +1,7 @@
 @using OrganizerBlazorApp.Domain.Entities
 
 @namespace OrganizerBlazorApp.Components.UI
-@if (SelectedMedia != null)
+@if (!IsEditable && SelectedMedia != null)
 {
   <div class="media-preview-area mb-4 p-2 border rounded bg-black d-flex justify-content-center align-items-center" style="min-height: 300px;">
     @if (IsImage(SelectedMedia.Extension))
@@ -24,9 +24,9 @@
     }
   </div>
 }
-@if (Attachments != null && Attachments.Any())
-{
-  <div class="list-group list-group-flush border rounded">
+<div class="list-group list-group-flush border rounded shadow-sm">
+  @if (Attachments != null && Attachments.Any())
+  {
     @foreach (var file in Attachments)
     {
       <div class="list-group-item d-flex justify-content-between align-items-center clickable-item" @onclick="() => SelectedMedia = file">
@@ -46,7 +46,7 @@
         {
           <input type="text" class="form-control form-control-sm border-0 bg-transparent" 
                        @bind="file.FileName" />
-          <button class="btn btn-sm text-danger" @onclick="() => RemoveAttachment(file)">
+          <button type="button" class="btn btn-sm text-danger" @onclick="() => RemoveAttachment(file)">
             <i class="bi bi-trash"></i>
           </button>
         }
@@ -56,12 +56,14 @@
         }
       </div>
     }
-  </div>
-}
-else
-{
-  <div class="list-group-item d-flex justify-content-between align-items-center text-muted">No attachments yet.</div>
-}
+  }
+  else
+  {
+    <div class="list-group-item text-center text-muted py-4">
+      <small>No attachments yet.</small>
+    </div>
+  }
+</div>
 <style>
   .clickable-item:hover { background-color: #f8f9fa !important; border-color: #e9ecef; }
 </style>

@@ -12,19 +12,18 @@
   </div> 
 }
 
-@if(Unit.SubTasks.Any())
+@if(!IsEditable && Unit.SubTasks.Any())
 {
   <div class="d-flex justify-content-between align-items-center mb-2">
     <label>Subtasks</label>
     <span class="badge bg-secondary">@CompletedCount / @Unit.SubTasks.Count</span>
   </div>
-
-  <div class="progress mb-3" style="height: 10px;">
-    <div class="progress-bar bg-success" role="progressbar" 
-        style="width: @ProgressPercentage%;" 
-        aria-valuenow="@ProgressPercentage" aria-valuemin="0" aria-valuemax="100">
+    <div class="progress mb-3" style="height: 10px;">
+      <div class="progress-bar bg-success" role="progressbar" 
+          style="width: @ProgressPercentage%;" 
+          aria-valuenow="@ProgressPercentage" aria-valuemin="0" aria-valuemax="100">
+      </div>
     </div>
-  </div>
 }
 
 <div class="subtasks-section mt-1">
