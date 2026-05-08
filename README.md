@@ -24,7 +24,7 @@ A robust, multimedia-supported task management system built with Blazor and .NET
 
 Clone the repository:
 
-    git clone https://github.com/yourusername/business-organizer.git
+    git clone https://github.com/dank-st/OrganizerBlazorApp.git
 
 Navigate to the project directory:
 
