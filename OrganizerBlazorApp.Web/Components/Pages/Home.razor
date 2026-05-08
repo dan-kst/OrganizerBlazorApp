@@ -10,51 +10,30 @@
 @inject ITaskRepository Repository
 
 <PageTitle>Organizer Dashboard</PageTitle>
-  <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>My Business Tasks</h1>
-        <div class="d-flex justify-content-end align-items-center mb-4">
-          <button class="btn btn-primary mx-2" @onclick="OpenCreatorModal">
-            <i class="bi bi-plus-circle me-2"></i>New Task
-          </button>
-          <button class="btn btn-outline-primary" @onclick="AddSampleTask">
-            <i class="bi bi-dice-3"></i>
-          </button>
-        </div>
-    </div>
-
-  @if (units == null)
-  {
-    <p><em>Loading units...</em></p>
-  }
-  else if (!units.Any())
-  {
-    <div class="alert alert-info">
-      No units found. Click the button above to add a sample unit!
-    </div>
-  }
-  else
-  {
-    <div class="row row-cols-1 row-cols-md-2 g-4">
-      @foreach (var unit in units.Where(t => t.ParentUnitId == null))
-      {
-        <UnitCard Unit="unit" OnDeleteClick="DeleteTask" OnStatusToggle="ToggleStatus" OnCardClick="OpenDetailsModal"></UnitCard>
-      }
-    </div>
-  }
+<div class="d-flex flex-fill" style="min-height: 100vh;">
+  <WeeklyCalendarView 
+  Units="FilterUnits"
+  OnUnitClick="OpenDetailsModal"
+  OnUnitDelete="ConfirmDelete"
+  OnUnitToggle="ToggleStatus"
+  OnUnitCreate="OpenCreatorModal"/>
 </div>
 
 
+@* Details Modal *@
 <Modal IsOpen="_isDetailsModalOpen" Title="Details">
   <ChildContent>
     <UnitDetailsView Unit="SelectedUnit"/>
   </ChildContent>
   <FooterContent>
-    <button class="btn btn-primary" @onclick="() => SwitchModal()">Edit</button>
-    <button class="btn btn-secondary" @onclick="() => _isDetailsModalOpen = false">Close</button>
+    <div class="p-2 bd-highlight">
+      <button class="btn btn-primary" @onclick="() => SwitchModal()">Edit</button>
+      <button class="btn btn-secondary ms-2" @onclick="() => _isDetailsModalOpen = false">Close</button>
+    </div>
   </FooterContent>
 </Modal>
 
+@* Editor/Creator Modal *@
 <EditForm Model="EditedUnit" OnValidSubmit="() => UpdateTaskAsync(EditedUnit)">
   <Modal IsOpen="_isEditorModalOpen" Title="@(EditedUnit.Id == Guid.Empty ? "New Task" : "Edit Task")">
     <ChildContent>
@@ -68,13 +47,33 @@
   </Modal>
 </EditForm>
 
+@* Confirm Modal *@
+<Modal IsOpen="_isConfirmModalOpen" Title="Confirm Delete">
+  <ChildContent>
+    <p>Are you sure to delete this task — "@SelectedUnit.Title"?</p>
+  </ChildContent>
+  <FooterContent>
+    <button class="btn btn-danger" @onclick="() => {DeleteTask(SelectedUnit); _isConfirmModalOpen = false;}">Confirm</button>
+    <button class="btn btn-secondary" @onclick="() => _isConfirmModalOpen = false">Cancel</button>
+  </FooterContent>
+</Modal>
 
 @code {
-  private IEnumerable<TodoUnit>? units;
+  private IEnumerable<TodoUnit>? _units;
+  private IEnumerable<TodoUnit>? filteredUnits = [];
   private TodoUnit? SelectedUnit { get; set; }
   private TodoUnit EditedUnit { get; set; } = new(){Id = new Guid(new Byte[16])};
   private bool _isDetailsModalOpen { get; set; } = false;
   private bool _isEditorModalOpen { get; set; } = false;
+  private bool _isConfirmModalOpen { get; set; } = false;
+  private ProcessStatus _statusFilter { get; set; } = ProcessStatus.None;
+
+  private IEnumerable<TodoUnit> FilterUnits => _units.Where(u => 
+  {
+    if (_statusFilter == ProcessStatus.Failed) return u.Status != ProcessStatus.Completed && u.Deadline < DateTime.Now;
+    if (_statusFilter == ProcessStatus.None) return true;
+    return u.Status == _statusFilter;
+  });
 
   protected override async Task OnInitializedAsync()
   {
@@ -83,7 +82,7 @@
 
   private async Task LoadTasks()
   {
-    units = await Repository.GetAllAsync();
+    _units = await Repository.GetAllAsync();
   }
 
   private async Task AddSampleTask()
@@ -139,6 +138,12 @@
   {
     await TaskService.ToggleProcessStatusAsync(unit.Id);
     await LoadTasks();
+  }
+
+  private void ConfirmDelete(TodoUnit unit)
+  {
+    SelectedUnit = unit;
+    _isConfirmModalOpen = true;
   }
 
   private async Task DeleteTask(TodoUnit unit)

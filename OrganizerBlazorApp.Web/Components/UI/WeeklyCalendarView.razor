@@ -1,0 +1,126 @@
+@using OrganizerBlazorApp.Domain.Entities
+@using OrganizerBlazorApp.Domain.Enums
+@using System.Globalization
+
+@namespace OrganizerBlazorApp.Components.UI
+
+<main class="d-flex flex-column flex-fill weekly-calendar">
+  @* Navigation between weeks *@
+  <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light rounded-top">
+    <button class="btn btn-sm btn-primary" @onclick="() => OnUnitCreate.InvokeAsync()">
+      <i class="bi bi-plus pe-2"></i>Create
+    </button>
+    <div class="d-flex align-items-center">
+      <button class="btn btn-outline-primary btn-sm me-2" @onclick="PrevWeek">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <button class="btn btn-outline-primary btn-sm me-3" @onclick="NextWeek">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+      <h5 class="mb-0 fw-bold text-dark">
+        @_startOfWeek.ToString("dd MMM") — @_startOfWeek.AddDays(6).ToString("dd MMM yyyy")
+      </h5>
+    </div>
+    <button class="btn btn-sm btn-outline-primary text-decoration-none" @onclick="GoToToday">Today</button>
+  </div>
+
+  @* Weeks grid *@
+  <div class="week-grid d-flex flex-grow-1">
+    @foreach (var dayDate in _daysInWeek)
+    {
+      var isToday = dayDate.Date == DateTime.Today;
+      var tasksForDay = Units.Where(t => t.Deadline.Date == dayDate.Date).OrderBy(t => t.Deadline).ToList();
+
+      <div class="day-column flex-grow-1 @(isToday ? "bg-today" : "")">
+          @* Day header *@
+          <div class="day-header p-2 text-center border-bottom">
+            <div class="text-uppercase small @(isToday ? "text-primary fw-bold" : "text-muted")">
+              @dayDate.ToString("ddd", CultureInfo.CurrentCulture)
+            </div>
+            <div class="fs-5 fw-bold @(isToday ? "text-primary" : "")">@dayDate.Day</div>
+          </div>
+
+          @* List of tasks of a day *@
+          <div class="day-content p-2">
+            @foreach (var unit in tasksForDay)
+            {
+              <div class="week-unit-card p-2 mb-2 shadow-sm border-start border-4 @GetStatusBorderClass(unit)"
+                    @onclick="() => OnUnitClick.InvokeAsync(unit)">
+                <UnitCard Unit="unit" IsCompact="true" OnStatusToggle="OnUnitToggle" OnDeleteClick="OnUnitDelete"/>
+              </div>
+            }
+          </div>
+      </div>
+    }
+  </div>
+</main>
+
+<style>
+  .week-grid {
+    min-height: 500px;
+    overflow-x: auto;
+  }
+
+  .day-column {
+    min-width: 140px;
+    border-right: 1px solid #eee;
+    transition: background 0.3s;
+  }
+
+  .day-column:last-child { border-right: none; }
+
+  .bg-today { background-color: #f0f7ff; }
+
+  .week-unit-card {
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+
+  .week-unit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+  }
+
+  .extra-small { font-size: 0.7rem; }
+
+  .border-unit-active { border-left-color: #0d6efd !important; }
+  .border-unit-completed { border-left-color: #198754 !important; opacity: 0.7; }
+  .border-unit-overdue { border-left-color: #dc3545 !important; background-color: #fff5f5; }
+</style>
+
+@code {
+  [Parameter] public IEnumerable<TodoUnit> Units { get; set; } = new List<TodoUnit>();
+  [Parameter] public EventCallback<TodoUnit> OnUnitClick { get; set; }
+  [Parameter] public EventCallback<TodoUnit> OnUnitDelete { get; set; }
+  [Parameter] public EventCallback<TodoUnit> OnUnitToggle { get; set; }
+  [Parameter] public EventCallback OnUnitCreate { get; set; }
+
+  private DateTime _currentDate = DateTime.Today;
+  private DateTime _startOfWeek;
+  private List<DateTime> _daysInWeek = new();
+
+  protected override void OnInitialized() => CalculateWeek();
+
+  private void CalculateWeek()
+  {
+    int diff = (7 + (int)_currentDate.DayOfWeek - (int)DayOfWeek.Monday) % 7;
+    _startOfWeek = _currentDate.AddDays(-1 * diff).Date;
+
+    _daysInWeek = Enumerable.Range(0, 7)
+        .Select(d => _startOfWeek.AddDays(d))
+        .ToList();
+  }
+
+  private void PrevWeek() { _currentDate = _currentDate.AddDays(-7); CalculateWeek(); }
+  private void NextWeek() { _currentDate = _currentDate.AddDays(7); CalculateWeek(); }
+  private void GoToToday() { _currentDate = DateTime.Today; CalculateWeek(); }
+
+  private string GetStatusBorderClass(TodoUnit unit)
+  {
+    if (unit.Status == ProcessStatus.Completed) return "border-unit-completed";
+    if (unit.Deadline < DateTime.Now) return "border-unit-overdue";
+    return "border-unit-active";
+  }
+}
