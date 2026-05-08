@@ -1,0 +1,81 @@
+@using OrganizerBlazorApp.Domain.Entities
+
+@namespace OrganizerBlazorApp.Components.UI
+@if (!IsEditable && SelectedMedia != null)
+{
+  <div class="media-preview-area mb-4 p-2 border rounded bg-black d-flex justify-content-center align-items-center" style="min-height: 300px;">
+    @if (IsImage(SelectedMedia.Extension))
+    {
+      <img src="@SelectedMedia.FilePath" class="img-fluid rounded" style="aspect-ratio: 16/9; object-fit: contain;" />
+    }
+    else if (IsVideo(SelectedMedia.Extension))
+    {
+      <video controls class="w-100 rounded" style="max-height: 400px;">
+        <source src="@SelectedMedia.FilePath" type="video/mp4">
+      </video>
+    }
+    else
+    {
+      <div class="text-white text-center">
+        <i class="bi bi-file-earmark-text fs-1"></i>
+        <p>@SelectedMedia.FileName</p>
+        <a href="@SelectedMedia.FilePath" target="_blank" class="btn btn-outline-light">Open</a>
+      </div>
+    }
+  </div>
+}
+<div class="list-group list-group-flush border rounded shadow-sm">
+  @if (Attachments != null && Attachments.Any())
+  {
+    @foreach (var file in Attachments)
+    {
+      <div class="list-group-item d-flex justify-content-between align-items-center clickable-item" @onclick="() => SelectedMedia = file">
+        @if(IsImage(file.Extension))
+        {
+          <i class="bi bi-image"></i>
+        }
+        else if(IsVideo(file.Extension))
+        {
+          <i class="bi bi-camera-video"></i>
+        }
+        else
+        {
+          <i class="bi bi-file-earmark-text-fill"></i>
+        }
+        @if(IsEditable)
+        {
+          <input type="text" class="form-control form-control-sm border-0 bg-transparent" 
+                       @bind="file.FileName" />
+          <button type="button" class="btn btn-sm text-danger" @onclick="() => RemoveAttachment(file)">
+            <i class="bi bi-trash"></i>
+          </button>
+        }
+        else
+        {
+          <span class="mx-3">@file.FileName</span>
+        }
+      </div>
+    }
+  }
+  else
+  {
+    <div class="list-group-item text-center text-muted py-4">
+      <small>No attachments yet.</small>
+    </div>
+  }
+</div>
+<style>
+  .clickable-item:hover { background-color: #f8f9fa !important; border-color: #e9ecef; }
+</style>
+
+@code {
+  [Parameter] public List<Attachment> Attachments { get; set; } = new();
+  [Parameter] public Attachment? SelectedMedia { get; set; }
+  [Parameter] public bool IsEditable { get; set; } = false;
+  [Parameter] public EventCallback<Attachment> OnRemoveRequest { get; set; }
+
+  private async Task RemoveAttachment(Attachment attachment) => await OnRemoveRequest.InvokeAsync(attachment);
+
+  private bool IsImage(string ext) => new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(ext.ToLower());
+  private bool IsVideo(string ext) => new[] { ".mp4", ".mov" }.Contains(ext.ToLower());
+}

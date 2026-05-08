@@ -1,0 +1,63 @@
+@using OrganizerBlazorApp.Domain.Entities
+@using OrganizerBlazorApp.Domain.Enums
+@using OrganizerBlazorApp.Domain.Extentions
+
+@namespace OrganizerBlazorApp.Components.UI
+
+<div class="col">
+  <div class="card-body d-flex align-items-center justify-content-between p-1 user-select-none">
+    <div class="d-flex align-items-center">
+      @* StopPropagation prevents the card click event from firing *@
+      <input type="checkbox" class="form-check-input me-3 pe-auto" 
+              checked="@(Unit.Status == ProcessStatus.Completed)"
+              @onchange="() => OnStatusToggle.InvokeAsync(Unit)"
+              @onclick:stopPropagation="true" />
+      <div class="flex-grow-1 text-truncate">
+          <h6 class="mb-0 @(Unit.Status == ProcessStatus.Completed ? "text-decoration-line-through text-muted" : "")" 
+            style="font-size: @(IsCompact ? "0.85rem" : "1rem")">
+            @Unit.Title
+          </h6>
+          @if (!IsCompact)
+          {
+            <p class="small text-muted mb-1">@Unit.Description</p>
+          }
+      </div>
+    </div>
+
+    <div class="text-end d-flex align-items-center">
+      @* Multimedia Icons Indicator *@
+      @if (Unit.Attachments.Any())
+      {
+        <div class="mx-2 text-primary">
+          <i class="bi bi-paperclip"></i>
+          <small>@Unit.Attachments.Count</small>
+        </div>
+      }
+
+      @* Subtask Progress *@
+      @if (Unit.SubTasks.Any())
+      {
+        <span class="badge rounded-pill bg-secondary text-light user-select-none">
+          @Unit.SubTasks.Count(s => s.Status == ProcessStatus.Completed)/@Unit.SubTasks.Count
+        </span>
+      }
+
+      @* Delete Button *@
+      <button class="btn btn-sm btn-outline-danger ms-4" @onclick="() => OnDeleteClick.InvokeAsync(Unit)" @onclick:stopPropagation="true">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .shadow.border-danger { box-shadow: 0 0.25rem 0.5rem #dc3545 !important; }
+  .shadow.border-warning { box-shadow: 0 0.25rem 0.5rem #ffc107 !important; }
+</style>
+
+@code {
+  [Parameter] public TodoUnit Unit { get; set; } = null!;
+  [Parameter] public EventCallback<TodoUnit> OnDeleteClick { get; set; }
+  [Parameter] public EventCallback<TodoUnit> OnStatusToggle { get; set; }
+  [Parameter] public bool IsCompact { get; set; } = false;
+}

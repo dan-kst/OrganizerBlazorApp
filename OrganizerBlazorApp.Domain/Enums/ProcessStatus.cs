@@ -5,6 +5,7 @@ namespace OrganizerBlazorApp.Domain.Enums;
 /// </summary>
 public enum ProcessStatus
 {
+  None,
   Active,
   Completed,
   Failed,

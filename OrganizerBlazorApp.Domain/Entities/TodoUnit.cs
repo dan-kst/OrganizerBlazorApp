@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 using OrganizerBlazorApp.Domain.Common;
 using OrganizerBlazorApp.Domain.Enums;
 
@@ -9,6 +11,8 @@ namespace OrganizerBlazorApp.Domain.Entities;
 /// </summary>
 public class TodoUnit : BaseEntity
 {
+  [Required(ErrorMessage = "Заголовок обов'язковий")]
+  [StringLength(100, ErrorMessage = "Занадто довгий заголовок")]
   /// <summary>
   /// Gets or sets the title of the unit.
   /// </summary>
@@ -23,10 +27,10 @@ public class TodoUnit : BaseEntity
   /// Gets or sets the unit's deadline.
   /// Logic triggers after this date to prompt user action.
   /// </summary>
-  public DateTime Deadline { get; set; }
+  public DateTime Deadline { get; set; } = DateTime.Now.AddDays(1);
 
   /// <summary>
-  /// Gets or sets the unit's completion process status. 
+  /// Gets or sets the unit's completion process status.
   /// Logic triggers after changing status.
   /// </summary>
   public ProcessStatus Status { get; set; } = ProcessStatus.Active;
@@ -55,4 +59,17 @@ public class TodoUnit : BaseEntity
   /// Navigation property for mediafile attachments.
   /// </summary>
   public virtual ICollection<Attachment> Attachments { get; set; } = [];
+
+  /// <summary>
+  /// Perform a deep copy of an class instance.
+  /// Clone unit's simple fields. Then copy every item in all lists.
+  /// </summary>
+  public TodoUnit Clone()
+  {
+    var clone = (TodoUnit)this.MemberwiseClone();
+    clone.Attachments = [.. this.Attachments.Select(a => a.Clone())];
+    clone.SubTasks = [.. this.SubTasks.Select(s => s.Clone())];
+
+    return clone;
+  }
 }

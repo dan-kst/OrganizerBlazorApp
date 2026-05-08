@@ -1,0 +1,114 @@
+@using OrganizerBlazorApp.Domain.Entities
+@using OrganizerBlazorApp.Domain.Enums
+@using OrganizerBlazorApp.Domain.Extentions
+
+@namespace OrganizerBlazorApp.Components.UI
+
+@if(IsEditable)
+{
+  <div class="input-group mb-2">
+    <input type="text" class="form-control" placeholder="Назва підзавдання..." @bind="_newSubTaskTitle" />
+    <button type="button" class="btn btn-outline-secondary" @onclick="AddSubTask">Add</button>
+  </div> 
+}
+
+@if(!IsEditable && Unit.SubTasks.Any())
+{
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <label>Subtasks</label>
+    <span class="badge bg-secondary">@CompletedCount / @Unit.SubTasks.Count</span>
+  </div>
+    <div class="progress mb-3" style="height: 10px;">
+      <div class="progress-bar bg-success" role="progressbar" 
+          style="width: @ProgressPercentage%;" 
+          aria-valuenow="@ProgressPercentage" aria-valuemin="0" aria-valuemax="100">
+      </div>
+    </div>
+}
+
+<div class="subtasks-section mt-1">
+  <div class="list-group list-group-flush border rounded shadow-sm">
+    @if(Unit.SubTasks.Any())
+    {
+      @foreach (var sub in Unit.SubTasks.OrderBy(s => s.Status))
+      {
+        <div class="list-group-item d-flex align-items-center bg-light-hover" @onclick="() => ToggleTaskStatus(sub)">
+          <i class="@sub.GetProcessStatusIconClass()"></i>
+          <span class="@sub.GetProcessStatusTextClass()">@sub.Title</span>
+          @if(IsEditable)
+          {
+            <button type="button" class="btn btn-sm text-danger" @onclick="() => Unit.SubTasks.Remove(sub)">
+              <i class="bi bi-x"></i>
+            </button>
+          }
+        </div>
+      }
+    }
+    else
+    {
+      <div class="list-group-item text-center text-muted py-4">
+        <small>No subtasks.</small>
+      </div>
+    }
+  </div>
+</div>
+<style>
+  .bg-light-hover:hover {
+    background-color: #f8f9fa;
+    transition: 0.2s;
+  }
+
+  .subtasks-section .list-group-item {
+    border-left: 3px solid transparent;
+  }
+
+  .subtasks-section .list-group-item:hover {
+    border-left: 3px solid #0d6efd;
+  }
+  .media-empty-state {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+  }
+</style>
+  
+@code {
+  [Parameter] public TodoUnit Unit { get; set; } = null!;
+  [Parameter] public bool IsEditable { get; set; } = false;
+  [Parameter] public EventCallback<TodoUnit> OnRemoveRequest { get; set; }
+  [Parameter] public EventCallback<TodoUnit> OnAddRequest { get; set; }
+
+  private string _newSubTaskTitle = "";
+
+  private void AddSubTask()
+  {
+    if (string.IsNullOrWhiteSpace(_newSubTaskTitle)) return;
+    
+    Unit.SubTasks.Add(new TodoUnit {
+      Id = Guid.NewGuid(),
+      Title = _newSubTaskTitle,
+      Status = ProcessStatus.Active,
+      Deadline = Unit.Deadline
+    });
+    Unit.UpdateStatusFromSubTasks();
+    _newSubTaskTitle = "";
+  }
+
+  private void ToggleTaskStatus(TodoUnit unit)
+  {
+    if(!IsEditable)
+    {
+      if(unit.Status == ProcessStatus.Active) unit.Status = ProcessStatus.Completed;
+      else if(unit.Status == ProcessStatus.Completed) unit.Status = ProcessStatus.Active;
+      Unit.UpdateStatusFromSubTasks();
+    }
+  }
+
+  private int CompletedCount => Unit.SubTasks.Count(s => s.Status == ProcessStatus.Completed);
+  
+  private int ProgressPercentage => Unit.SubTasks.Any() 
+    ? (int)((double)CompletedCount / Unit.SubTasks.Count * 100) 
+    : 0;
+}

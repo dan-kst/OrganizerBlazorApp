@@ -1,0 +1,52 @@
+@using OrganizerBlazorApp.Domain.Entities
+@using OrganizerBlazorApp.Domain.Enums
+@using OrganizerBlazorApp.Components.UI
+
+@namespace OrganizerBlazorApp.Components.UI
+
+@if(Unit != null)
+{
+  <div class="container">
+    <div class="mb-4">
+      <div class="d-flex justify-content-between align-items-start">
+        <h3>@Unit.Title</h3>
+        <span class="badge @(Unit.Status == ProcessStatus.Completed ? "bg-success" : "bg-primary")">
+          @Unit.Status
+        </span>
+      </div>
+      <p class="text-muted">
+        <i class="bi bi-clock"></i> Deadline: @Unit.Deadline.ToString("f")
+      </p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Unit.Description))
+    {
+      <div class="mb-4">
+        <h6>Description</h6>
+        <p class="border-start ps-3 py-1 bg-light">@Unit.Description</p>
+      </div>
+    }
+    <div class="mb-4">
+      
+      <label>Multimedia & Attachments</label>
+        <MediaGallery Attachments="Unit.Attachments.ToList()" SelectedMedia="_selectedMedia" />
+    </div>
+    <div class="mb-4">
+        <SubtasksList Unit="Unit"/>
+    </div>
+  </div>
+}
+
+@code {
+  [Parameter] public TodoUnit? Unit { get; set; } = null!;
+  [Parameter] public EventCallback OnEditRequested { get; set; }
+  private Attachment? _selectedMedia;
+
+  protected override void OnInitialized()
+  {
+    _selectedMedia = Unit.Attachments.FirstOrDefault();
+  }
+  
+  private bool IsImage(string ext) => new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(ext.ToLower());
+  private bool IsVideo(string ext) => new[] { ".mp4" }.Contains(ext.ToLower());
+}

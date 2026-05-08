@@ -1,0 +1,154 @@
+@page "/"
+@using OrganizerBlazorApp.Application.Services
+@using OrganizerBlazorApp.Domain.Entities
+@using OrganizerBlazorApp.Domain.Interfaces
+@using OrganizerBlazorApp.Domain.Enums
+@using OrganizerBlazorApp.Domain.Extentions
+@using OrganizerBlazorApp.Components.UI
+@rendermode InteractiveServer
+@inject TaskService TaskService
+@inject ITaskRepository Repository
+
+<PageTitle>Organizer Dashboard</PageTitle>
+<div class="d-flex flex-fill" style="min-height: 100vh;">
+  <WeeklyCalendarView 
+  Units="FilterUnits"
+  OnUnitClick="OpenDetailsModal"
+  OnUnitDelete="ConfirmDelete"
+  OnUnitToggle="ToggleStatus"
+  OnUnitCreate="OpenCreatorModal"/>
+</div>
+
+
+@* Details Modal *@
+<Modal IsOpen="_isDetailsModalOpen" Title="Details">
+  <ChildContent>
+    <UnitDetailsView Unit="SelectedUnit"/>
+  </ChildContent>
+  <FooterContent>
+    <div class="p-2 bd-highlight">
+      <button class="btn btn-primary" @onclick="() => SwitchModal()">Edit</button>
+      <button class="btn btn-secondary ms-2" @onclick="() => _isDetailsModalOpen = false">Close</button>
+    </div>
+  </FooterContent>
+</Modal>
+
+@* Editor/Creator Modal *@
+<EditForm Model="EditedUnit" OnValidSubmit="() => UpdateTaskAsync(EditedUnit)">
+  <Modal IsOpen="_isEditorModalOpen" Title="@(EditedUnit.Id == Guid.Empty ? "New Task" : "Edit Task")">
+    <ChildContent>
+      <DataAnnotationsValidator />
+      <UnitEditorForm Unit="EditedUnit"/>
+    </ChildContent>
+    <FooterContent>
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-secondary" @onclick="() => _isEditorModalOpen = false">Cancel</button>
+    </FooterContent>
+  </Modal>
+</EditForm>
+
+@* Confirm Modal *@
+<Modal IsOpen="_isConfirmModalOpen" Title="Confirm Delete">
+  <ChildContent>
+    <p>Are you sure to delete this task — "@SelectedUnit.Title"?</p>
+  </ChildContent>
+  <FooterContent>
+    <button class="btn btn-danger" @onclick="() => {DeleteTask(SelectedUnit); _isConfirmModalOpen = false;}">Confirm</button>
+    <button class="btn btn-secondary" @onclick="() => _isConfirmModalOpen = false">Cancel</button>
+  </FooterContent>
+</Modal>
+
+@code {
+  private IEnumerable<TodoUnit>? _units;
+  private IEnumerable<TodoUnit>? filteredUnits = [];
+  private TodoUnit? SelectedUnit { get; set; }
+  private TodoUnit EditedUnit { get; set; } = new(){Id = new Guid(new Byte[16])};
+  private bool _isDetailsModalOpen { get; set; } = false;
+  private bool _isEditorModalOpen { get; set; } = false;
+  private bool _isConfirmModalOpen { get; set; } = false;
+  private ProcessStatus _statusFilter { get; set; } = ProcessStatus.None;
+
+  private IEnumerable<TodoUnit> FilterUnits => _units.Where(u => 
+  {
+    if (_statusFilter == ProcessStatus.Failed) return u.Status != ProcessStatus.Completed && u.Deadline < DateTime.Now;
+    if (_statusFilter == ProcessStatus.None) return true;
+    return u.Status == _statusFilter;
+  });
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadTasks();
+  }
+
+  private async Task LoadTasks()
+  {
+    _units = await Repository.GetAllAsync();
+  }
+
+  private async Task AddSampleTask()
+  {
+    await TaskService.SeedSampleTaskAsync();
+    await LoadTasks();
+  }
+
+  // Unit Card delegates
+  private async Task UpdateTaskAsync(TodoUnit updatedUnit)
+  {
+    if(updatedUnit != null)
+    {
+      if(updatedUnit.Id == Guid.Empty)
+      {
+        updatedUnit.Id = Guid.NewGuid();
+        await TaskService.CreateTaskAsync(updatedUnit);
+      }
+      await Repository.UpdateAsync(updatedUnit);
+    }
+    _isEditorModalOpen = false;
+    _isDetailsModalOpen = false;
+    await LoadTasks();
+  }
+
+  private void OpenDetailsModal(TodoUnit unit)
+  {
+    SelectedUnit = unit;
+    _isDetailsModalOpen = true;
+  }
+
+  private void OpenCreatorModal()
+  {
+    EditedUnit = new(){Id = new Guid(new Byte[16])};
+    _isEditorModalOpen = true;
+  }
+
+  private void SwitchModal()
+  {
+    if(_isDetailsModalOpen)
+    {
+      EditedUnit = SelectedUnit.Clone();
+      _isDetailsModalOpen = false;
+      _isEditorModalOpen = true;
+    }
+    else{
+      _isEditorModalOpen = false;
+      _isDetailsModalOpen = true;
+    }
+  }
+
+  private async Task ToggleStatus(TodoUnit unit)
+  {
+    await TaskService.ToggleProcessStatusAsync(unit.Id);
+    await LoadTasks();
+  }
+
+  private void ConfirmDelete(TodoUnit unit)
+  {
+    SelectedUnit = unit;
+    _isConfirmModalOpen = true;
+  }
+
+  private async Task DeleteTask(TodoUnit unit)
+  {
+    await TaskService.DeleteTaskAsync(unit.Id);
+    await LoadTasks();
+  }
+}
