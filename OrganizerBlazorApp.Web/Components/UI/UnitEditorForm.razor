@@ -15,6 +15,10 @@
     <label>Deadline</label>
     <input type="datetime-local" class="form-control" @bind="Unit.Deadline" />
   </div>
+  <div class="mb-4">
+    <label>Description</label>
+    <textarea class="form-control" @bind="Unit.Description"></textarea>
+  </div>
   <div class="mb-2">
     <label>Attach media (photo, video, docs):</label>
       <MediaGallery Attachments="Unit.Attachments.ToList()" SelectedMedia="_selectedMedia" OnRemoveRequest="DeleteFile" IsEditable="true"/>  
